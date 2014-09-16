@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140916144238) do
+ActiveRecord::Schema.define(version: 20140916233028) do
 
   create_table "event_ranges", force: true do |t|
     t.date     "start_on"
@@ -57,5 +57,15 @@ ActiveRecord::Schema.define(version: 20140916144238) do
 
   add_index "rel_event_event_sources", ["event_id"], name: "index_rel_event_event_sources_on_event_id", using: :btree
   add_index "rel_event_event_sources", ["event_source_id"], name: "index_rel_event_event_sources_on_event_source_id", using: :btree
+
+  create_table "settings", force: true do |t|
+    t.string   "name"
+    t.integer  "num"
+    t.string   "str"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "settings", ["name"], name: "index_settings_on_name", unique: true, using: :btree
 
 end
