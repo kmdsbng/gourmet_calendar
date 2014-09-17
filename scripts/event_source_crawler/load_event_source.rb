@@ -19,8 +19,10 @@ class EventSourceImporter
   def save_event_source(url, source_type, event_source_attr)
   end
 
-  def detect_source_type
-    raise 'TODO: implement'
+  def detect_source_type(url)
+    if url =~ /www\.leafkyoto\.net/
+      ::EventSource::LEAF
+    end
   end
 end
 
@@ -33,11 +35,14 @@ class EventSourceImporter::LeafEventSourceParser
     place_str = basyo_dt.maybe.next_element.text.strip.end
     kikan_dt = dts.detect {|e| e.text.strip == '期間'}
     range_str = kikan_dt.maybe.next_element.text.strip.gsub(/[\t\r\n]/, '').end
-    {
-      title: title,
-      place_str: place_str,
-      range_str: range_str,
-    }
+    [
+      {
+        title: title,
+        place_str: place_str,
+        range_str: range_str,
+      },
+      title.present? && place_str.present? && range_str.present?
+    ]
   end
 end
 
@@ -55,6 +60,7 @@ def main
   kikan_dt = dts.detect {|e| e.text.strip == '期間'}
   range_str = kikan_dt.maybe.next_element.text.strip.gsub(/[\t\r\n]/, '').end
   range_str # => "2014年09月27日(土)~2014年09月27日(土)"
+  [title, place_str, range_str]
 end
 
 def load_web_content(url)
@@ -84,7 +90,11 @@ when /spec[^\/]*$/
       url = 'http://www.leafkyoto.net/event/detail/496'
       content = load_web_content(url)
       parser = EventSourceImporter::LeafEventSourceParser.new
-      @attr = parser.parse(content)
+      @attr, @ok = parser.parse(content)
+    end
+
+    it "success to parse" do
+      expect(@ok).to eq(true)
     end
 
     it "has valid title" do
@@ -107,7 +117,7 @@ when /spec[^\/]*$/
 
     it "detect leafkyoto.net url" do
       url = 'http://www.leafkyoto.net/event/detail/496'
-      expect(@importer.detect_source_type(url)).to eq('leaf')
+      expect(@importer.detect_source_type(url)).to eq(EventSource::LEAF)
     end
 
   end
