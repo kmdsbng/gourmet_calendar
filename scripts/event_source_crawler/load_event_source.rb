@@ -11,12 +11,12 @@ class EventSourceImporter
   def import(url)
     source_type = detect_source_type(url)
     parser = get_parser(source_type)
-    content = load_web_content(url)
-    event_source_attr = parser.parse(content)
-    save_event_source(url, source_type, event_source_attr)
+    content, error_on_load = load_web_content(url)
+    event_source_attr, parse_ok = parser.parse(content)
+    save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
   end
 
-  def save_event_source(url, source_type, event_source_attr)
+  def save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
   end
 
   def detect_source_type(url)
@@ -48,7 +48,7 @@ end
 
 def main
   url = 'http://www.leafkyoto.net/event/detail/496'
-  content = load_web_content(url)
+  content, error_on_load = load_web_content(url)
   content.size # => 116725
   doc = Nokogiri::HTML(content)
   title = doc.title.maybe.split('イベント詳細')[0].end.to_s.strip
@@ -68,16 +68,20 @@ def load_web_content(url)
   if File.exist?(fname)
     content = File.read(fname)
     content.size # => 116725
-    content
+    [content, nil]
   else
-    open(url) {|f|
-      content = f.read
+
+    url = URI.parse(url)
+    res = Net::HTTP.start(url.host, url.port) {|http| http.get(url.path)}
+    if res.code == '200'
+      content = res.body
       open(fname, 'w') {|out|
         out.write content
       }
-      content.size # =>
-      content
-    }
+      [content, nil]
+    else
+      [nil, res.code]
+    end
   end
 end
 
@@ -88,7 +92,7 @@ when /spec[^\/]*$/
   describe EventSourceImporter::LeafEventSourceParser do
     before do
       url = 'http://www.leafkyoto.net/event/detail/496'
-      content = load_web_content(url)
+      content, error_code = load_web_content(url)
       parser = EventSourceImporter::LeafEventSourceParser.new
       @attr, @ok = parser.parse(content)
     end
