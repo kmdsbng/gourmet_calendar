@@ -3,6 +3,7 @@ require 'fileutils'
 require 'digest/sha1'
 require 'open-uri'
 require 'nokogiri'
+require 'net/https'
 
 FileUtils.cd(File.dirname(__FILE__))
 require './../../config/environment'
@@ -71,11 +72,15 @@ def load_web_content(url)
     [content, nil]
   else
 
-    url = URI.parse(url)
-    res = Net::HTTP.start(url.host, url.port) {|http| http.get(url.path)}
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true if uri.scheme == 'https'
+    res = http.start {|proto|
+      proto.get(uri.path)
+    }
     if res.code == '200'
       content = res.body
-      open(fname, 'w') {|out|
+      open(fname, 'wb') {|out|
         out.write content
       }
       [content, nil]
@@ -92,7 +97,7 @@ when /spec[^\/]*$/
   describe EventSourceImporter::LeafEventSourceParser do
     before do
       url = 'http://www.leafkyoto.net/event/detail/496'
-      content, error_code = load_web_content(url)
+      content, _error_code = load_web_content(url)
       parser = EventSourceImporter::LeafEventSourceParser.new
       @attr, @ok = parser.parse(content)
     end
@@ -123,6 +128,26 @@ when /spec[^\/]*$/
       url = 'http://www.leafkyoto.net/event/detail/496'
       expect(@importer.detect_source_type(url)).to eq(EventSource::LEAF)
     end
+
+  end
+
+  describe "load_web_content" do
+    context 'content exists' do
+      it "return no error" do
+        url = 'http://www.leafkyoto.net/event/detail/496'
+        _content, error_code = load_web_content(url)
+        expect(error_code).to eq(nil)
+      end
+    end
+
+    context 'content not found' do
+      it "return 404" do
+        url = 'https://google.com/hoge'
+        _content, error_code = load_web_content(url)
+        expect(error_code).to eq('404')
+      end
+    end
+
 
   end
 

@@ -16,3 +16,5 @@
 /tmp
 
 .secure
+
+/scripts/event_source_crawler/cache/*
