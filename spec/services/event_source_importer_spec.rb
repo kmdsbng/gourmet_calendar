@@ -37,7 +37,7 @@ describe EventSourceImporter do
       end
 
       it "set import_success flag" do
-        pending
+        expect(@model.import_success).to eq(true)
       end
 
       it "has valid title" do
@@ -45,17 +45,22 @@ describe EventSourceImporter do
       end
 
       it "set blank to import_error_code" do
-        pending
-
+        expect(@model.import_error_code).to be_blank
       end
 
       it "set blank to import_error_description" do
-        pending
-
+        expect(@model.import_error_description).to be_blank
       end
 
-      it "don't allow duplicate url" do
-        pending
+      it "doesn't allow duplicate url" do
+        expect {
+          @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
+        }.to raise_error
+      end
+
+      it "allows different url" do
+        model2 = @importer.save_event_source(@url + '5', @source_type, @attr, @error_on_load, @parse_ok)
+        expect(model2.id > 0).to eq(true)
       end
     end
 
