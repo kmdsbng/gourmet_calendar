@@ -8,46 +8,6 @@ require 'net/https'
 FileUtils.cd(File.dirname(__FILE__))
 require './../../config/environment'
 
-class EventSourceImporter
-  def import(url)
-    source_type = detect_source_type(url)
-    parser = get_parser(source_type)
-    content, error_on_load = load_web_content(url)
-    event_source_attr, parse_ok = parser.parse(content)
-    save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
-  end
-
-  def save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
-    EventSource.create!(:url => url)
-  end
-
-  def detect_source_type(url)
-    if url =~ /www\.leafkyoto\.net/
-      ::EventSource::LEAF
-    end
-  end
-end
-
-class EventSourceImporter::LeafEventSourceParser
-  def parse(content)
-    doc = Nokogiri::HTML(content)
-    title = doc.title.maybe.split('イベント詳細')[0].end.to_s.strip
-    dts = doc.xpath('//dt')
-    basyo_dt = dts.detect {|e| e.text.strip == '場所'}
-    place_str = basyo_dt.maybe.next_element.text.strip.end
-    kikan_dt = dts.detect {|e| e.text.strip == '期間'}
-    range_str = kikan_dt.maybe.next_element.text.strip.gsub(/[\t\r\n]/, '').end
-    [
-      {
-        title: title,
-        place_str: place_str,
-        range_str: range_str,
-      },
-      title.present? && place_str.present? && range_str.present?
-    ]
-  end
-end
-
 def main
   url = 'http://www.leafkyoto.net/event/detail/496'
   content, _error_on_load = load_web_content(url)
