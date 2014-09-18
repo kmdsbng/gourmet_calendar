@@ -23,40 +23,39 @@ describe EventSourceImporter do
       @parse_ok = nil
     end
 
-    pending do
-      context "valid event_source" do
+    context "valid event_source" do
+      before do
+        @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
+      end
 
-        it "return event_source model" do
-          @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
-          expect(@model.is_a?(::EventSource)).to eq(true)
-        end
+      it "return event_source model" do
+        expect(@model.is_a?(::EventSource)).to eq(true)
+      end
 
-        it "return id" do
-          pending
-        end
+      it "return id" do
+        expect(@model.id > 0).to eq(true)
+      end
 
-        it "set import_success flag" do
-          pending
+      it "set import_success flag" do
+        pending
+      end
 
-        end
+      it "has valid title" do
+        expect(@model.title).to eq("sample event")
+      end
 
-        it "has valid title" do
-          expect(@model.title).to eq("sample event")
-        end
+      it "set blank to import_error_code" do
+        pending
 
-        it "set blank to import_error_code" do
-          pending
+      end
 
-        end
+      it "set blank to import_error_description" do
+        pending
 
-        it "set blank to import_error_description" do
-          pending
+      end
 
-        end
-
-        it "don't allow duplicate url" do
-          pending
-        end
+      it "don't allow duplicate url" do
+        pending
       end
     end
 

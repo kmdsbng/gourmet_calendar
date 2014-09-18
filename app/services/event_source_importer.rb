@@ -9,7 +9,18 @@ class EventSourceImporter
   end
 
   def save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
-    EventSource.create!(:url => url)
+    if error_on_load.present?
+      error_code = error_on_load
+      import_success = false
+    elsif parse_ok
+      error_code = 'parse failed'
+      import_success = false
+    else
+      import_success = true
+    end
+    attr = event_source_attr.merge(
+      :url => url, :source_type => source_type, :import_error_code => error_code, :import_success => import_success)
+    ::EventSource.create!(attr)
   end
 
   def detect_source_type(url)
