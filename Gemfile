@@ -49,6 +49,10 @@ group :test, :development do
   gem "fuubar"
 end
 
+group :development do
+  gem "spring-commands-rspec"
+end
+
 gem 'nokogiri'
 gem 'pismo'
 
