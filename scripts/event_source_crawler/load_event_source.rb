@@ -10,7 +10,7 @@ require './../../config/environment'
 
 def main
   url = 'http://www.leafkyoto.net/event/detail/496'
-  content, _error_on_load = load_web_content(url)
+  content, _error_on_load = EventSourceImporter.new.load_web_content(url)
   content.size # => 116725
   doc = Nokogiri::HTML(content)
   title = doc.title.maybe.split('イベント詳細')[0].end.to_s.strip
@@ -25,32 +25,6 @@ def main
   [title, place_str, range_str]
 end
 
-def load_web_content(url)
-  fname = 'cache/' + Digest::SHA256.hexdigest(url)
-  if File.exist?(fname)
-    content = File.read(fname)
-    content.size # => 116725
-    [content, nil]
-  else
-
-    uri = URI.parse(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true if uri.scheme == 'https'
-    res = http.start {|proto|
-      proto.get(uri.path)
-    }
-    if res.code == '200'
-      content = res.body
-      open(fname, 'wb') {|out|
-        out.write content
-      }
-      [content, nil]
-    else
-      [nil, res.code]
-    end
-  end
-end
-
 case $PROGRAM_NAME
 when __FILE__
   main
@@ -58,7 +32,7 @@ when /spec[^\/]*$/
   describe EventSourceImporter::LeafEventSourceParser do
     before do
       url = 'http://www.leafkyoto.net/event/detail/496'
-      content, _error_code = load_web_content(url)
+      content, _error_code = EventSourceImporter.new.load_web_content(url)
       parser = EventSourceImporter::LeafEventSourceParser.new
       @attr, @ok = parser.parse(content)
     end
@@ -108,7 +82,7 @@ when /spec[^\/]*$/
 
           it "return event_source model" do
             @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
-            expect(@model.kind_of?(::EventSource)).to eq(true)
+            expect(@model.is_a?(::EventSource)).to eq(true)
           end
 
           it "return id" do
@@ -156,27 +130,28 @@ when /spec[^\/]*$/
       #t.string :import_error_code
       #t.text :import_error_description
     end
+
+    describe "load_web_content" do
+      context 'content exists' do
+        it "return no error" do
+          url = 'http://www.leafkyoto.net/event/detail/496'
+          _content, error_code = @importer.load_web_content(url)
+          expect(error_code).to eq(nil)
+        end
+      end
+
+      context 'content not found' do
+        it "return 404" do
+          url = 'https://google.com/hoge'
+          _content, error_code = @importer.load_web_content(url)
+          expect(error_code).to eq('404')
+        end
+      end
+
+
+    end
   end
 
-  describe "load_web_content" do
-    context 'content exists' do
-      it "return no error" do
-        url = 'http://www.leafkyoto.net/event/detail/496'
-        _content, error_code = load_web_content(url)
-        expect(error_code).to eq(nil)
-      end
-    end
-
-    context 'content not found' do
-      it "return 404" do
-        url = 'https://google.com/hoge'
-        _content, error_code = load_web_content(url)
-        expect(error_code).to eq('404')
-      end
-    end
-
-
-  end
 
 
 end
