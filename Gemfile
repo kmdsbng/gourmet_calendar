@@ -46,6 +46,7 @@ group :test, :development do
   gem "pry"
   gem "pry-doc"
   gem "rspec-rails"
+  gem "fuubar"
 end
 
 gem 'nokogiri'
