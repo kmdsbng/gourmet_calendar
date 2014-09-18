@@ -143,34 +143,40 @@ when /spec[^\/]*$/
         @parse_ok = nil
       end
 
-      context "valid event_source" do
+      pending do
+        context "valid event_source" do
 
-        it "return event_source model" do
-          @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
-          expect(@model.kind_of?(::EventSource)).to eq(true)
-        end
+          it "return event_source model" do
+            @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
+            expect(@model.kind_of?(::EventSource)).to eq(true)
+          end
 
-        it "return id" do
-          pending
-        end
+          it "return id" do
+            pending
+          end
 
-        it "set import_success flag" do
-          pending
+          it "set import_success flag" do
+            pending
 
-        end
+          end
 
-        it "set blank to import_error_code" do
-          pending
+          it "has valid title" do
+            expect(@model.title).to eq("sample event")
+          end
 
-        end
+          it "set blank to import_error_code" do
+            pending
 
-        it "set blank to import_error_description" do
-          pending
+          end
 
-        end
+          it "set blank to import_error_description" do
+            pending
 
-        it "don't allow duplicate url" do
-          pending
+          end
+
+          it "don't allow duplicate url" do
+            pending
+          end
         end
       end
 
