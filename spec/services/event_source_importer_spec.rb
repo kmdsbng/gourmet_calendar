@@ -75,10 +75,6 @@ describe EventSourceImporter do
       end
 
     end
-
-    #t.boolean :import_success, :default => true
-    #t.string :import_error_code
-    #t.text :import_error_description
   end
 
   describe "load_web_content" do
