@@ -18,6 +18,7 @@ class EventSourceImporter
   end
 
   def save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
+    EventSource.create!(:url => url)
   end
 
   def detect_source_type(url)
@@ -49,18 +50,18 @@ end
 
 def main
   url = 'http://www.leafkyoto.net/event/detail/496'
-  content, error_on_load = load_web_content(url)
+  content, _error_on_load = load_web_content(url)
   content.size # => 116725
   doc = Nokogiri::HTML(content)
   title = doc.title.maybe.split('イベント詳細')[0].end.to_s.strip
-  title # => "極上肉を堪能！「第1回 京都肉祭」開催決定！"
+  _title = title # => "極上肉を堪能！「第1回 京都肉祭」開催決定！"
   dts = doc.xpath('//dt')
   basyo_dt = dts.detect {|e| e.text.strip == '場所'}
   place_str = basyo_dt.maybe.next_element.text.strip.end
-  place_str # => "［京都市役所前広場］（京都市・寺町御池）"
+  _place_str = place_str # => "［京都市役所前広場］（京都市・寺町御池）"
   kikan_dt = dts.detect {|e| e.text.strip == '期間'}
   range_str = kikan_dt.maybe.next_element.text.strip.gsub(/[\t\r\n]/, '').end
-  range_str # => "2014年09月27日(土)~2014年09月27日(土)"
+  _range_str = range_str # => "2014年09月27日(土)~2014年09月27日(土)"
   [title, place_str, range_str]
 end
 
@@ -129,6 +130,66 @@ when /spec[^\/]*$/
       expect(@importer.detect_source_type(url)).to eq(EventSource::LEAF)
     end
 
+    describe "save_event_source" do
+      before do
+        @url = 'http://example.jp/events/234'
+        @source_type = 'sample source type'
+        @attr = {
+          title: 'sample event',
+          place_str: 'place',
+          range_str: '1999/1/1 - 1999/1/2',
+        }
+        @error_on_load = nil
+        @parse_ok = nil
+      end
+
+      context "valid event_source" do
+
+        it "return event_source model" do
+          @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
+          expect(@model.kind_of?(::EventSource)).to eq(true)
+        end
+
+        it "return id" do
+          pending
+        end
+
+        it "set import_success flag" do
+          pending
+
+        end
+
+        it "set blank to import_error_code" do
+          pending
+
+        end
+
+        it "set blank to import_error_description" do
+          pending
+
+        end
+
+        it "don't allow duplicate url" do
+          pending
+        end
+      end
+
+      pending do
+        context "has error on load" do
+
+        end
+
+
+        context "failed to parse" do
+
+        end
+
+      end
+
+      #t.boolean :import_success, :default => true
+      #t.string :import_error_code
+      #t.text :import_error_description
+    end
   end
 
   describe "load_web_content" do
@@ -150,6 +211,7 @@ when /spec[^\/]*$/
 
 
   end
+
 
 end
 

@@ -28,18 +28,21 @@ ActiveRecord::Schema.define(version: 20140916233028) do
   add_index "event_ranges", ["start_on", "end_on"], name: "index_event_ranges_on_start_on_and_end_on", using: :btree
 
   create_table "event_sources", force: true do |t|
-    t.string   "url"
+    t.string   "url",                                      null: false
     t.string   "title"
     t.string   "place_str"
     t.string   "range_str"
     t.string   "source_type"
-    t.boolean  "event_created"
-    t.boolean  "ignored"
+    t.boolean  "event_created",            default: false
+    t.boolean  "ignored",                  default: false
+    t.boolean  "import_success",           default: true
+    t.string   "import_error_code"
+    t.text     "import_error_description"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "event_sources", ["url"], name: "index_event_sources_on_url", using: :btree
+  add_index "event_sources", ["url"], name: "index_event_sources_on_url", unique: true, using: :btree
 
   create_table "events", force: true do |t|
     t.string   "title"
