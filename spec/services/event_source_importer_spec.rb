@@ -20,7 +20,7 @@ describe EventSourceImporter do
         range_str: '1999/1/1 - 1999/1/2',
       }
       @error_on_load = nil
-      @parse_ok = nil
+      @parse_ok = true
     end
 
     context "valid event_source" do
@@ -64,17 +64,39 @@ describe EventSourceImporter do
       end
     end
 
-    pending do
-      context "has error on load" do
-
+    context "has error on load" do
+      before do
+        @error_on_load = '404'
+        @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
       end
 
+      it "set import_success false" do
+        expect(@model.import_success).to eq(false)
+      end
 
-      context "failed to parse" do
-
+      it "set 404 to import_error_code" do
+        expect(@model.import_error_code).to eq('404')
       end
 
     end
+
+
+    context "failed to parse" do
+      before do
+        @parse_ok = false
+        @model = @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
+      end
+
+      it "set import_success false" do
+        expect(@model.import_success).to eq(false)
+      end
+
+      it "set parse error to import_error_code" do
+        expect(@model.import_error_code).to eq('parse failed')
+      end
+
+    end
+
   end
 
   describe "load_web_content" do
@@ -93,7 +115,6 @@ describe EventSourceImporter do
         expect(error_code).to eq('404')
       end
     end
-
 
   end
 end

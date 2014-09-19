@@ -12,7 +12,7 @@ class EventSourceImporter
     if error_on_load.present?
       error_code = error_on_load
       import_success = false
-    elsif parse_ok
+    elsif !parse_ok
       error_code = 'parse failed'
       import_success = false
     else
