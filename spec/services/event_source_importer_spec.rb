@@ -117,6 +117,43 @@ describe EventSourceImporter do
     end
 
   end
+
+  describe "import" do
+    context "valid url" do
+      it "return import_success" do
+        url = 'http://www.leafkyoto.net/event/detail/496'
+        event_source = @importer.import(url)
+        expect(event_source.import_success).to eq(false)
+      end
+    end
+
+    context "invalid domain" do
+      it "return import failes" do
+        url = 'http://example.com/'
+        event_source = @importer.import(url)
+        expect(event_source.import_success).to eq(false)
+      end
+    end
+
+    context "404 url" do
+      it "return import failes" do
+        url = 'http://google.com/hoge'
+        event_source = @importer.import(url)
+        expect(event_source.import_success).to eq(false)
+      end
+
+      it "return 404 error_code" do
+        url = 'http://google.com/hoge'
+        event_source = @importer.import(url)
+        expect(event_source.error_code).to eq(false)
+      end
+    end
+
+    pending do
+      context "blank url" do
+      end
+    end
+  end
 end
 
 

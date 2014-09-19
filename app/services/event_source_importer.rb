@@ -1,10 +1,15 @@
 # -*- encoding: utf-8 -*-
 class EventSourceImporter
   def import(url)
+    raise "url is blank" if url.blank?
     source_type = detect_source_type(url)
     parser = get_parser(source_type)
     content, error_on_load = load_web_content(url)
-    event_source_attr, parse_ok = parser.parse(content)
+    if parser
+      event_source_attr, parse_ok = parser.parse(content)
+    else
+      event_source_attr, parse_ok = {}, false
+    end
     save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
   end
 
@@ -20,12 +25,24 @@ class EventSourceImporter
     end
     attr = event_source_attr.merge(
       :url => url, :source_type => source_type, :import_error_code => error_code, :import_success => import_success)
-    ::EventSource.create!(attr)
+    existed_event_source = EventSource.where(:url => url).first
+    if existed_event_source
+      existed_event_source.attributes = attr
+    else
+      ::EventSource.create!(attr)
+    end
   end
 
   def detect_source_type(url)
     if url =~ /www\.leafkyoto\.net/
       ::EventSource::LEAF
+    end
+  end
+
+  def get_parser(source_type)
+    case source_type
+    when ::EventSource::LEAF
+      ::EventSourceImporter::LeafEventSourceParser.new
     end
   end
 
