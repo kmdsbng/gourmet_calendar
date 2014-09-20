@@ -49,42 +49,43 @@ class EventSourceImporter
   # retval: content, retval, result_url
   def load_web_content(url)
     appended_urls = Set.new([])
-    origin_url = url
+    original_url = url
 
     while true
+      return [nil, 'cycle redirect', original_url] if appended_urls.include?(url)
+      appended_urls << url
+
       fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
       if File.exist?(fname)
         content = File.read(fname)
-        content.size # => 116725
+        return [content, nil, url]
+      end
+
+      res = fetch_url(url)
+
+      case res.code
+      when /^3[0-9]{2}$/
+        url = res['location']
+        next
+      when '200'
+        open(fname, 'wb') {|out|
+          out.write res.body
+        }
         return [content, nil, url]
       else
-
-        if appended_urls.include?(url)
-          return [nil, 'cycle redirect', origin_url]
-        end
-        appended_urls << url
-        uri = URI.parse(url)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true if uri.scheme == 'https'
-        res = http.start {|proto|
-          proto.get(uri.path)
-        }
-        if res.code == '200'
-          content = res.body
-          fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
-          open(fname, 'wb') {|out|
-            out.write content
-          }
-          return [content, nil, url]
-        elsif res.code =~ /^3[0-9]{2}$/
-          url = res['location']
-          next
-        else
-          return [nil, res.code, url]
-        end
+        return [nil, res.code, url]
       end
     end
   end
 
+  def fetch_url(url)
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true if uri.scheme == 'https'
+    res = http.start {|proto|
+      proto.get(uri.path)
+    }
+    res
+  end
 end
 
