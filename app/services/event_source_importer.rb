@@ -2,15 +2,15 @@
 class EventSourceImporter
   def import(url)
     raise "url is blank" if url.blank?
-    source_type = detect_source_type(url)
+    content, error_on_load, result_url = load_web_content(url)
+    source_type = detect_source_type(result_url)
     parser = get_parser(source_type)
-    content, error_on_load = load_web_content(url)
     if parser
       event_source_attr, parse_ok = parser.parse(content)
     else
       event_source_attr, parse_ok = {}, false
     end
-    save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
+    save_event_source(result_url, source_type, event_source_attr, error_on_load, parse_ok)
   end
 
   def save_event_source(url, source_type, event_source_attr, error_on_load, parse_ok)
@@ -46,28 +46,42 @@ class EventSourceImporter
     end
   end
 
+  # retval: content, retval, result_url
   def load_web_content(url)
-    fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
-    if File.exist?(fname)
-      content = File.read(fname)
-      content.size # => 116725
-      [content, nil]
-    else
+    appended_urls = Set.new([])
+    origin_url = url
 
-      uri = URI.parse(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == 'https'
-      res = http.start {|proto|
-        proto.get(uri.path)
-      }
-      if res.code == '200'
-        content = res.body
-        open(fname, 'wb') {|out|
-          out.write content
-        }
-        [content, nil]
+    while true
+      fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
+      if File.exist?(fname)
+        content = File.read(fname)
+        content.size # => 116725
+        return [content, nil, url]
       else
-        [nil, res.code]
+
+        if appended_urls.include?(url)
+          return [nil, 'cycle redirect', origin_url]
+        end
+        appended_urls << url
+        uri = URI.parse(url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true if uri.scheme == 'https'
+        res = http.start {|proto|
+          proto.get(uri.path)
+        }
+        if res.code == '200'
+          content = res.body
+          fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
+          open(fname, 'wb') {|out|
+            out.write content
+          }
+          return [content, nil, url]
+        elsif res.code =~ /^3[0-9]{2}$/
+          url = res['location']
+          next
+        else
+          return [nil, res.code, url]
+        end
       end
     end
   end

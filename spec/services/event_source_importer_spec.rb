@@ -52,15 +52,30 @@ describe EventSourceImporter do
         expect(@model.import_error_description).to be_blank
       end
 
-      it "doesn't allow duplicate url" do
-        expect {
+      context "doesn't allow duplicate url" do
+        it "before 1 row" do
+          before_count = ::EventSource.where(:url => @url).count
+          expect(before_count).to eq(1)
+        end
+
+        it "after 1 row" do
           @importer.save_event_source(@url, @source_type, @attr, @error_on_load, @parse_ok)
-        }.to raise_error
+          after_count = ::EventSource.where(:url => @url).count
+          expect(after_count).to eq(1)
+        end
       end
 
-      it "allows different url" do
-        model2 = @importer.save_event_source(@url + '5', @source_type, @attr, @error_on_load, @parse_ok)
-        expect(model2.id > 0).to eq(true)
+      context "allows different url" do
+        it "before 0 row" do
+          before_count = ::EventSource.where(:url => @url + '5').count
+          expect(before_count).to eq(0)
+        end
+
+        it "after 1 row" do
+          @importer.save_event_source(@url + '5', @source_type, @attr, @error_on_load, @parse_ok)
+          after_count = ::EventSource.where(:url => @url).count
+          expect(after_count).to eq(1)
+        end
       end
     end
 
@@ -123,7 +138,27 @@ describe EventSourceImporter do
       it "return import_success" do
         url = 'http://www.leafkyoto.net/event/detail/496'
         event_source = @importer.import(url)
-        expect(event_source.import_success).to eq(false)
+        expect(event_source.import_success).to eq(true)
+      end
+    end
+
+    context "shortend url" do
+      before do
+        @url = 'http://goo.gl/MxL9Mq'
+        @event_source = @importer.import(@url)
+      end
+
+      it "return import_success" do
+        expect(@event_source.import_success).to eq(true)
+      end
+
+      it "has blank import_error_code" do
+        expect(@event_source.import_error_code).to eq(nil)
+      end
+
+      it "has expanded url" do
+        expanded_url = 'http://www.leafkyoto.net/event/detail/496'
+        expect(@event_source.url).to eq(expanded_url)
       end
     end
 
@@ -143,14 +178,18 @@ describe EventSourceImporter do
       end
 
       it "return 404 error_code" do
-        url = 'http://google.com/hoge'
+        url = 'http://www.google.com/hoge'
         event_source = @importer.import(url)
-        expect(event_source.error_code).to eq(false)
+        expect(event_source.import_error_code).to eq('404')
       end
     end
 
-    pending do
-      context "blank url" do
+    context "blank url" do
+      it "raise error" do
+        expect {
+          url = ''
+          @importer.import(url)
+        }.to raise_error
       end
     end
   end
