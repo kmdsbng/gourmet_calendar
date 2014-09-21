@@ -27,10 +27,31 @@ describe LeafEventSourceCrawler do
     @crawler = LeafEventSourceImporter.new(my_importer)
   end
 
-  # it "detect leafkyoto.net url" do
-  #   url = 'http://www.leafkyoto.net/event/detail/496'
-  #   expect(@importer.detect_source_type(url)).to eq(EventSource::LEAF)
-  # end
+  describe "load_leaf_event_id" do
+    it "load valid event_id" do
+      expect(@crawler.load_leaf_event_id).to eq(100)
+    end
+  end
+
+  describe "import_leaf_events" do
+    before do
+      @finished_event_id = @crawler.import_leaf_events(100)
+    end
+
+    it "last event id == 104" do
+      expect(@finished_event_id).to eq(104)
+    end
+  end
+
+  describe "save_leaf_event_id" do
+    before do
+      @crawler.save_leaf_event_id(999)
+    end
+
+    it "save last event id to specific value" do
+      expect(@crawler.load_leaf_event_id).to eq(999)
+    end
+  end
 
   # describe "save_event_source" do
   #   before do
