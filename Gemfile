@@ -45,6 +45,7 @@ gem "sexy_presenter"
 group :test, :development do
   gem "pry"
   gem "pry-doc"
+  gem "pry-rails"
   gem "rspec-rails"
   gem "fuubar"
 end

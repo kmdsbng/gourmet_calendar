@@ -12,7 +12,32 @@ class LeafEventSourceCrawler
   end
 
   def load_leaf_event_id
+    ::Setting.load_leaf_event_id
   end
 
+  def save_leaf_event_id(event_id)
+    ::Setting.save_leaf_event_id(event_id)
+  end
+
+  def import_leaf_events(event_id)
+    last_import_success_id = event_id - 1
+    current_id = event_id
+    failed_count = 0
+    while true
+      url = "http://www.leafkyoto.net/event/detail/#{current_id}"
+      event_source = @event_source_importer.import(url)
+      if event_source.import_success
+        failed_count = 0
+        last_import_success_id = current_id
+      else
+        failed_count += 1
+        if failed_count >= 5
+          return last_import_success_id
+        end
+      end
+      sleep 1
+      current_id += 1
+    end
+  end
 end
 

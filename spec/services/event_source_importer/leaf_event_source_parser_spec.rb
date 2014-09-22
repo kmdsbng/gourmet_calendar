@@ -3,8 +3,8 @@ require 'rails_helper'
 describe EventSourceImporter::LeafEventSourceParser do
   before do
     url = 'http://www.leafkyoto.net/event/detail/496'
-    content, _error_code = EventSourceImporter.new.load_web_content(url)
-    parser = EventSourceImporter::LeafEventSourceParser.new
+    content, _error_code = ::EventSourceImporter.new.load_web_content(url)
+    parser = ::EventSourceImporter::LeafEventSourceParser.new
     @attr, @ok = parser.parse(content)
   end
 

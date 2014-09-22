@@ -24,7 +24,7 @@ describe LeafEventSourceCrawler do
   before do
     Setting.save_leaf_event_id(100)
     my_importer = MyImporter.new
-    @crawler = LeafEventSourceImporter.new(my_importer)
+    @crawler = LeafEventSourceCrawler.new(my_importer)
   end
 
   describe "load_leaf_event_id" do

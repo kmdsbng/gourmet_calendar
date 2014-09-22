@@ -28,6 +28,8 @@ class EventSourceImporter
     existed_event_source = EventSource.where(:url => url).first
     if existed_event_source
       existed_event_source.attributes = attr
+      existed_event_source.save!
+      existed_event_source
     else
       ::EventSource.create!(attr)
     end
@@ -56,10 +58,10 @@ class EventSourceImporter
       appended_urls << url
 
       fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
-      if File.exist?(fname)
-        content = File.read(fname)
-        return [content, nil, url]
-      end
+      #if File.exist?(fname)
+      #  content = File.read(fname)
+      #  return [content, nil, url]
+      #end
 
       res = fetch_url(url)
 
@@ -71,7 +73,7 @@ class EventSourceImporter
         open(fname, 'wb') {|out|
           out.write res.body
         }
-        return [content, nil, url]
+        return [res.body, nil, url]
       else
         return [nil, res.code, url]
       end

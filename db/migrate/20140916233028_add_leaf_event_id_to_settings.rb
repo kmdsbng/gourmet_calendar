@@ -4,7 +4,7 @@ class AddLeafEventIdToSettings < ActiveRecord::Migration
 
   def up
     unless Setting.where(:name => 'leaf_event_id').exists?
-      Setting.create!(:name => 'leaf_event_id', :num => 495)
+      Setting.create!(:name => 'leaf_event_id', :num => 450)
     end
   end
 
