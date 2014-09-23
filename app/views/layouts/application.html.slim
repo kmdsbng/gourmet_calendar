@@ -10,6 +10,21 @@ html
     header.navbar.navbar-default role='navigation'
       div.container
         div.navbar-header
+          button.navbar-toggle type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+          span.sr-only
+            | Toggle navigation
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
           = link_to 'Gourmet Calendar', root_path, class: 'navbar-brand'
+        div.collapse.navbar-collapse id="bs-example-navbar-collapse-1"
+          ul.nav.navbar-nav.navbar-right
+            li
+              = link_to 'Twitterでログイン', '/auth/twitter'
     div.container
+      - if flash[:notice]
+        div.alert.alert-success
+          = flash[:notice]
       = yield
+
+
