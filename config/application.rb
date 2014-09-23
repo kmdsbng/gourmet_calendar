@@ -21,5 +21,6 @@ module GourmetCalendar
     # config.i18n.default_locale = :de
 
     config.autoload_paths += %W(#{config.root}/app/services)
+    config.assets.paths << Rails.root.join('vendor', 'assets', 'components')
   end
 end

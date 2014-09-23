@@ -41,7 +41,6 @@ gem 'spring',        group: :development
 
 gem "rmaybe"
 gem "slim-rails"
-gem "sexy_presenter"
 group :test, :development do
   gem "pry"
   gem "pry-doc"
