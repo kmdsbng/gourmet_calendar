@@ -14,9 +14,13 @@ class SessionsController < ApplicationController
     redirect_to root_path, notice: 'ログインしました'
   end
 
+  def destroy
+    reset_session
+    redirect_to root_path, notice: 'ログアウトしました'
+  end
+
   private
   def acceptable_user?(provider, nickname)
-    n
     acceptables = Set.new([['twitter', 'kmdsbng'], ['twitter', 'minotami']])
     acceptables.include?([provider, nickname])
   end
