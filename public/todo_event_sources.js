@@ -9,16 +9,25 @@ var EventSourceRow = React.createClass({
         //    </span>;
         var eventSource = this.props.eventSource;
         return (
-          <li>
-            <a href={eventSource.url}>{eventSource.title}</a>
-            {eventSource.url}
-            {eventSource.place}
-            {eventSource.range}
-            &nbsp;
-            <input type="checkbox" checked={eventSource.eventCreated} />イベント作成済み
-            &nbsp;
-            <input type="checkbox" checked={eventSource.ignored} />無視
-          </li>
+          <tr>
+            <td>
+              <a href={eventSource.url}>{eventSource.title}</a>
+            </td>
+            <td>
+              <a href={eventSource.url}>{eventSource.url}</a>
+            </td>
+            <td>
+              {eventSource.place}
+            </td>
+            <td>
+              {eventSource.range}
+            </td>
+            <td>
+              <input type="checkbox" checked={eventSource.eventCreated} />イベント作成済み
+              &nbsp;
+              <input type="checkbox" checked={eventSource.ignored} />無視
+            </td>
+          </tr>
         );
     }
 });
@@ -44,9 +53,11 @@ var EventSourceTable = React.createClass({
       rows.push(<EventSourceRow eventSource={eventSource} />);
     }.bind(this));
     return (
-      <ul>
-        {rows}
-      </ul>
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          {rows}
+        </table>
+      </div>
     );
   }
 });
