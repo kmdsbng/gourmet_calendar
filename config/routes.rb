@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get '/logout' => 'sessions#destroy', as: :logout
 
   get '/event_sources/todos' => 'event_sources#todos'
+  get '/event_sources/todos_json' => 'event_sources#todos_json'
 
 
   # The priority is based upon order of creation: first created -> highest priority.

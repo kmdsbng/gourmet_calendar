@@ -47,15 +47,57 @@ var EventSourceTable = React.createClass({
   //    });
   //},
   
+  loadEventSourcesFromServer: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({eventSources: data.eventSources});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  getInitialState: function() {
+    return {
+      eventSources: [
+        {title: 'Sporting Goods', url: 'http://www.yahoo.co.jp'  , place: 'kyoto', range: 'Baseball'}
+      ]
+    };
+  },
+  componentDidMount: function() {
+    this.loadEventSourcesFromServer();
+  },
   render: function() {
     var rows = [];
-    this.props.eventSources.forEach(function(eventSource) {
+    this.state.eventSources.forEach(function(eventSource) {
       rows.push(<EventSourceRow eventSource={eventSource} />);
     }.bind(this));
     return (
       <div className="table-responsive">
         <table className="table table-striped table-bordered">
-          {rows}
+          <thead>
+            <tr>
+              <th>
+                タイトル
+              </th>
+              <th>
+                情報元
+              </th>
+              <th>
+                場所
+              </th>
+              <th>
+                期間
+              </th>
+              <th>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
         </table>
       </div>
     );
@@ -70,5 +112,5 @@ var EVENT_SOURCES = [
   {title: 'Electronics'   , url: 'http://www.yahoo.co.jp', place: 'kyoto', range: 'iPhone 5'},
   {title: 'Electronics'   , url: 'http://www.yahoo.co.jp', place: 'kyoto', range: 'Nexus 7', eventCreated: true, ignored: true}
 ];
-React.renderComponent(<EventSourceTable eventSources={EVENT_SOURCES} />, $('#MainTable')[0]);
+React.renderComponent(<EventSourceTable eventSources={EVENT_SOURCES} url="/event_sources/todos_json" />, $('#MainTable')[0]);
 
