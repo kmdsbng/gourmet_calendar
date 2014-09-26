@@ -9,7 +9,7 @@ var EventSourceRow = React.createClass({
           {eventSource.id}
         </td>
         <td>
-          <a href={eventSource.url}>{eventSource.title}</a>
+          <a href={eventSource.url} target="_blank">{eventSource.title}</a>
         </td>
         <td>
           {eventSource.place}
