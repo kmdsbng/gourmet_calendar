@@ -16,3 +16,16 @@
 //= require react/JSXTransformer
 //= require_tree .
 //
+
+
+$.ajaxSetup({
+  beforeSend: function(xhr, settings) {
+    if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+      if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRF-Token", $('meta[name="csrf-token"]').attr('content'));
+      }
+    }
+  }
+});
+
