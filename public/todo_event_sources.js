@@ -76,12 +76,27 @@ var EventSourceTable = React.createClass({
   },
   handleEventCreated: function(eventSourceId, value) {
     console.log('EventSourceTable.handleEventCreated:' + eventSourceId + ' ' + value);
-    $.ajax({
-      url: '/event_source/event_created'
-    })
+    var url = (value ? '/event_source/event_created/' : '/event_source/cancel_event_created/') + eventSourceId;
+    this.putRequest(url);
   },
   handleIgnored: function(eventSourceId, value) {
     console.log('EventSourceTable.handleIgnored:' + eventSourceId + ' ' + value);
+    var url = (value ? '/event_source/ignored/' : '/event_source/cancel_ignored/') + eventSourceId;
+    this.putRequest(url);
+  },
+  putRequest: function(url, data) {
+    if (!data)
+      data = {};
+
+    var error = function (xhr) {
+      alert(url + ' error :' + xhr.status + ' ' + xhr.statusText);
+    }
+    $.ajax({
+      url: url,
+      type: 'PUT',
+      cache: false,
+      error: error
+    })
   },
   render: function() {
     var rows = [];
