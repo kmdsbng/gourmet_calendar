@@ -3,7 +3,6 @@
 var EventSourceRow = React.createClass({
   getInitialState: function() {
     var eventSource = this.props.eventSource;
-
     return {
       event_created: eventSource.event_created,
       ignored: eventSource.ignored
@@ -30,6 +29,9 @@ var EventSourceRow = React.createClass({
         </td>
         <td>
           <a href={eventSource.url} target="_blank">{eventSource.title}</a>
+        </td>
+        <td>
+          {eventSource.source_type}
         </td>
         <td>
           {eventSource.place}
@@ -67,7 +69,7 @@ var EventSourceTable = React.createClass({
   getInitialState: function() {
     return {
       eventSources: [
-        {id: 0, title: 'title', url: 'url'  , place: 'place', range: 'range'}
+        //{id: 0, title: 'title', url: 'url'  , place: 'place', range: 'range'}
       ]
     };
   },
@@ -113,6 +115,9 @@ var EventSourceTable = React.createClass({
               </th>
               <th>
                 タイトル
+              </th>
+              <th width="60">
+                情報元
               </th>
               <th>
                 場所
