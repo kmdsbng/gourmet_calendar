@@ -1,6 +1,26 @@
 /** @jsx React.DOM */
 
 var EventSourceRow = React.createClass({
+  getInitialState: function() {
+    var eventSource = this.props.eventSource;
+
+    return {
+      event_created: eventSource.event_created,
+      ignored: eventSource.ignored
+    };
+  },
+  handleChangeEventCreated: function(e) {
+    this.props.handleEventCreated(this.props.eventSource.id, e.target.checked);
+    var state = this.state;
+    state.event_created = e.target.checked;
+    this.setState(state);
+  },
+  handleChangeIgnored: function(e) {
+    this.props.handleIgnored(this.props.eventSource.id, e.target.checked);
+    var state = this.state;
+    state.ignored = e.target.checked;
+    this.setState(state);
+  },
   render: function() {
     var eventSource = this.props.eventSource;
     return (
@@ -18,9 +38,13 @@ var EventSourceRow = React.createClass({
           {eventSource.range}
         </td>
         <td>
-          <input type="checkbox" checked={eventSource.eventCreated} />イベント作成済み
+          <label>
+            <input type="checkbox" checked={this.state.event_created} onChange={this.handleChangeEventCreated} />イベント作成済み
+          </label>
           &nbsp;
-          <input type="checkbox" checked={eventSource.ignored} />無視
+          <label>
+            <input type="checkbox" checked={this.state.ignored} onChange={this.handleChangeIgnored} />無視
+          </label>
         </td>
       </tr>
     );
@@ -28,13 +52,6 @@ var EventSourceRow = React.createClass({
 });
 
 var EventSourceTable = React.createClass({
-  //handleUserInput: function(filterText, inStockOnly) {
-  //    this.setState({
-  //        filterText: filterText,
-  //        inStockOnly: inStockOnly
-  //    });
-  //},
-  
   loadEventSourcesFromServer: function() {
     $.ajax({
       url: this.props.url,
@@ -57,10 +74,19 @@ var EventSourceTable = React.createClass({
   componentDidMount: function() {
     this.loadEventSourcesFromServer();
   },
+  handleEventCreated: function(eventSourceId, value) {
+    console.log('EventSourceTable.handleEventCreated:' + eventSourceId + ' ' + value);
+    $.ajax({
+      url: '/event_source/event_created'
+    })
+  },
+  handleIgnored: function(eventSourceId, value) {
+    console.log('EventSourceTable.handleIgnored:' + eventSourceId + ' ' + value);
+  },
   render: function() {
     var rows = [];
     this.state.eventSources.forEach(function(eventSource) {
-      rows.push(<EventSourceRow eventSource={eventSource} />);
+      rows.push(<EventSourceRow eventSource={eventSource} handleEventCreated={this.handleEventCreated} handleIgnored={this.handleIgnored} />);
     }.bind(this));
     return (
       <div className="table-responsive">

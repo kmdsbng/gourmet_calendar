@@ -17,6 +17,7 @@ class EventSourcesController < ApplicationController
         range: model.range_str,
         import_success: model.import_success,
         ignored: model.ignored,
+        event_created: model.event_created,
       }
     }
   end
