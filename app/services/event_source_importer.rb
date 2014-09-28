@@ -58,11 +58,6 @@ class EventSourceImporter
       appended_urls << url
 
       fname = Rails.root + ('cache/' + Digest::SHA256.hexdigest(url))
-      #if File.exist?(fname)
-      #  content = File.read(fname)
-      #  return [content, nil, url]
-      #end
-
       res = fetch_url(url)
 
       case res.code
