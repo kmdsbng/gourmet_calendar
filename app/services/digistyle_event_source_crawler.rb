@@ -65,6 +65,10 @@ class DigistyleEventSourceCrawler
     @event_source_detector = event_source_detector
   end
 
+  def crawl
+    import_digistyle_events
+  end
+
   # retval: imported_count
   def import_digistyle_events
     importees = @event_source_detector.detect_event_importees
