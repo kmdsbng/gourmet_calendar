@@ -82,8 +82,8 @@ describe WalkerplusEventSourceCrawler::EventSourceDetector do
     @importees = @detector.detect_event_importees(content)
   end
 
-  it "detect 4 events" do
-    expect(@importees.count).to eq(4)
+  it "detect 11 events" do
+    expect(@importees.count).to eq(11)
   end
 
   it "has valid title" do

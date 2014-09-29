@@ -16,17 +16,17 @@ class WalkerplusEventSourceCrawler
 
   class EventSourceDetector
 
-    def detect_event_importees(content=nil)
-      content ||= load_walkerplus_category_index_content
+    def detect_event_importees(contents=nil)
+      contents ||= load_walkerplus_category_index_contents
       doc = Nokogiri::HTML(content)
 
-      values = doc.css('.event_pickup_list .right').
+      values = doc.css('#main .list-box').
         map {|box|
           {
-            url: box.css('dt a').maybe.attr('href').value.end,
-            title: box.css('dt').try(:text),
-            range: box.css('dd')[0].maybe.text.split('開催')[0].end,
-            place: box.css('dd')[2].try(:text)
+            url: box.css('.bar h2 a').maybe.attr('href').value.end,
+            title: box.css('.bar h2').try(:text),
+            range: box.css('.bar data')[0].maybe.css('.green').text.gsub(/【開催日・期間】/, '').end,
+            place: box.css('.bar data')[1].maybe.css('.red').text.gsub(/【開催場所】/, '').end,
           }
         }.select {|attr| attr[:url].present?}
       values.map {|attr|
@@ -34,7 +34,7 @@ class WalkerplusEventSourceCrawler
       }
     end
 
-    def load_walkerplus_category_index_content
+    def load_walkerplus_category_index_contents
       content, _retval, _result_url = ::EventSourceImporter.new.load_web_content(DIGISTYLE_CATEGORY_INDEX_URL)
       content
     end
