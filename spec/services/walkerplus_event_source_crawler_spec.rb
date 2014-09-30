@@ -79,7 +79,7 @@ describe WalkerplusEventSourceCrawler::EventSourceDetector do
   before do
     @detector = ::WalkerplusEventSourceCrawler::EventSourceDetector.new
     content = File.read(File.dirname(__FILE__) + '/../data/b1abaac19ed17e1a55e81b1f655aba674190edd34d02a449da65af81eea916a8')
-    @importees = @detector.detect_event_importees(content)
+    @importees = @detector.detect_event_importees([content])
   end
 
   it "detect 11 events" do
@@ -87,23 +87,23 @@ describe WalkerplusEventSourceCrawler::EventSourceDetector do
   end
 
   it "has valid title" do
-    expect(@importees[0].title).to eq("おいしおすえ京野菜フェスティバル")
+    expect(@importees[0].title).to eq("初秋の陶芸ランチ")
   end
 
   it "has valid url" do
-    expect(@importees[0].url).to eq("http://www.digistyle-kyoto.com/event/cat524/post_8123817611.html")
+    expect(@importees[0].url).to eq("http://www.walkerplus.com/event/ar0725e79968/")
   end
 
   it "has valid place" do
-    expect(@importees[0].place).to eq("会場：梅小路公園")
+    expect(@importees[0].place).to eq("水茎焼陶芸の里")
   end
 
   it "has valid range" do
-    expect(@importees[0].range).to eq("2014年11月 1日～2014年11月 3日")
+    expect(@importees[0].range).to eq("9/1(月)～30(火)※水・土・日・祝日と22日は未開催。　10:30～陶芸教室（手廻しロクロ）　12:00～琵琶湖・旬の幸を使ったランチ・デザート付き　13:00～おしゃべりタイム（珈琲・紅茶おかわり自由）　15:00お開き（退場自由）")
   end
 
   it "load walkerplus category index" do
-    expect(@detector.load_walkerplus_category_index_content).to be_present
+    expect(@detector.load_walkerplus_category_index_contents).to be_present
   end
 end
 

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 class WalkerplusEventSourceCrawler
   WALKERPLUS_CATEGORY_INDEX_URL_TEMPLATE = 'http://www.walkerplus.com/event_list/YYYYMM/ar0700/eg0117/'
+  WALKERPLUS_DOMAIN = 'http://www.walkerplus.com'
   # EventSourceの元になるクラス
   class Importee
     attr_accessor :url, :title, :range, :place
@@ -18,25 +19,42 @@ class WalkerplusEventSourceCrawler
 
     def detect_event_importees(contents=nil)
       contents ||= load_walkerplus_category_index_contents
-      doc = Nokogiri::HTML(content)
+      values = contents.flat_map {|content|
+        doc = Nokogiri::HTML(content)
 
-      values = doc.css('#main .list-box').
-        map {|box|
-          {
-            url: box.css('.bar h2 a').maybe.attr('href').value.end,
-            title: box.css('.bar h2').try(:text),
-            range: box.css('.bar data')[0].maybe.css('.green').text.gsub(/【開催日・期間】/, '').end,
-            place: box.css('.bar data')[1].maybe.css('.red').text.gsub(/【開催場所】/, '').end,
-          }
-        }.select {|attr| attr[:url].present?}
+        doc.css('#main .list-box').
+          map {|box|
+            {
+              url: normalize_walkerplus_url(box.css('.bar h2 a').maybe.attr('href').value.end),
+              title: box.css('.bar h2').try(:text),
+              range: box.css('.data')[0].maybe.css('.green').text.gsub(/【開催日・期間】/, '').to_s.strip.end,
+              place: box.css('.data')[1].maybe.css('.red').text.gsub(/【開催場所】/, '').to_s.strip.end,
+            }
+          }.select {|attr| attr[:url].present?}
+      }
+      values = values.uniq {|h| h[:url]}
       values.map {|attr|
         Importee.new(attr)
       }
     end
 
+    def normalize_walkerplus_url(url)
+      url = url.to_s
+      if url =~ /^http/
+        url
+      else
+        WALKERPLUS_DOMAIN + url
+      end
+    end
+
     def load_walkerplus_category_index_contents
-      content, _retval, _result_url = ::EventSourceImporter.new.load_web_content(DIGISTYLE_CATEGORY_INDEX_URL)
-      content
+      this_month = Date.today.beginning_of_month
+      [this_month, this_month.next_month, this_month.months_since(2)].map {|month|
+        url = WALKERPLUS_CATEGORY_INDEX_URL_TEMPLATE.gsub('YYYYMM', month.strftime('%Y%m'))
+        content, _retval, _result_url = ::EventSourceImporter.new.load_web_content(url)
+        sleep(1)
+        content
+      }
     end
   end
 
