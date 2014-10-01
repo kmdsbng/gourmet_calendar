@@ -6,6 +6,18 @@ class EventSourcesController < ApplicationController
     render :json => { eventSources: model_jsons }
   end
 
+  def ignoreds_json
+    models = ::EventSource.order('id desc').where(:import_success => true, :ignored => true).all
+    model_jsons = to_jsons(models)
+    render :json => { eventSources: model_jsons }
+  end
+
+  def event_createds_json
+    models = ::EventSource.order('id desc').where(:import_success => true, :event_created => true).all
+    model_jsons = to_jsons(models)
+    render :json => { eventSources: model_jsons }
+  end
+
   private
   def to_jsons(models)
     models.map {|model|

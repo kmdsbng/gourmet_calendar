@@ -1,11 +1,15 @@
 Rails.application.routes.draw do
-  root to: 'welcome#index'
+  root to: 'event_sources#todos'
   get 'welcome/index'
   get '/auth/:provider/callback' => 'sessions#create'
   get '/logout' => 'sessions#destroy', as: :logout
 
   get '/event_sources/todos' => 'event_sources#todos'
   get '/event_sources/todos_json' => 'event_sources#todos_json'
+  get '/event_sources/event_createds' => 'event_sources#event_createds'
+  get '/event_sources/event_createds_json' => 'event_sources#event_createds_json'
+  get '/event_sources/ignoreds' => 'event_sources#ignoreds'
+  get '/event_sources/ignoreds_json' => 'event_sources#ignoreds_json'
 
   put '/event_source/ignored/:id' => 'event_source#ignored'
   put '/event_source/cancel_ignored/:id' => 'event_source#cancel_ignored'

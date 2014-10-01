@@ -23,7 +23,7 @@ class EventSourceController < ApplicationController
 
   def cancel_event_created
     ActiveRecord::Base.transaction {
-      ::EventSource.find(params[:id]).update_attribute(:event_created, true)
+      ::EventSource.find(params[:id]).update_attribute(:event_created, false)
       render :json => { state: 'success' }
     }
   end

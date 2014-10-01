@@ -138,5 +138,5 @@ var EventSourceTable = React.createClass({
   }
 });
 
-React.renderComponent(<EventSourceTable url="/event_sources/todos_json" />, $('#MainTable')[0]);
+React.renderComponent(<EventSourceTable url={list_url} />, $('#MainTable')[0]);
 
