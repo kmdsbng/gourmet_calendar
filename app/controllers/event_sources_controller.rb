@@ -1,7 +1,7 @@
 class EventSourcesController < ApplicationController
 
   def todos_json
-    models = ::EventSource.order('id desc').where(:import_success => true, :ignored => false).all
+    models = ::EventSource.order('id desc').where(:import_success => true, :ignored => false, :event_created => false).all
     model_jsons = to_jsons(models)
     render :json => { eventSources: model_jsons }
   end
